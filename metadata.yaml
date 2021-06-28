@@ -1,8 +1,4 @@
 #cloud-config
-disable_root: true
-timezone: Europe/Moscow
-repo_update: true
-repo_upgrade: false
 
 users:
     - test
@@ -13,19 +9,16 @@ users:
         - "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCtEyNdMhqycv8va+OUJbQlNansIk2ZhJuBF0HJ/Jukf4Jm9pf5dt0P4X0jamdEYkJecOVsgB463A5qDUma8O9WU8IwLJH4MQwmiepjnitPri5Yhov1s6mOQ3183rKqyUFFCVaRQgGKImBRu3u906/+HbYrvtUZMCSJhT5YbudH+rn7C5gQyBx2ZJy8wf2nV82Tix2Veq62Edif/YLOeNtr9MmyzO1DeSIFg8CCXhIt6vP7qdYvLdOQDPZ+TqGH5T+X9Ra6hDoszGCaHURHDvpQSeCr4R9ED/nClo+FTu4btyBlXf19zOL0asQypSINCWF+zbiL2c1Z6HQTcjll6KKfV56IGn9aLw5Av3rCwuj0F4ZXdSL42BWo3NjdTcBj5IuEDwTuYD64lUjC3vy0t6TaPkGzxshzhCn4INbPMa3S2D0gFw37//s8zc1pHLu/msYpAHiCJua/5ko1ZHsGpDAmm28uh2Fr4vX5/j9zaIsTij+Faukb4BhU6aZNcUbM4WU= otus@otus-VirtualBox"
 
 runcmd:
- # Install ruby
-    - sudo apt-get update
-    - sudo apt-get install -y ruby-full ruby-bundler build-essential git
+  - sudo apt-get update
+  - sudo apt-get install -y ruby-full ruby-bundler build-essential git
     
- # Install mongodb
-    - wget -qO - https://www.mongodb.org/static/pgp/server-4.2.asc | sudo apt-key add -
-    - echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/4.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.2.list
-    - sudo apt-get update
-    - sudo apt-get install -y mongodb-org
-    - sudo systemctl start mongod
-    - sudo systemctl enable mongod
+  - wget -qO - https://www.mongodb.org/static/pgp/server-4.2.asc | sudo apt-key add -
+  - echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/4.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.2.list
+  - sudo apt-get update
+  - sudo apt-get install -y mongodb-org
+  - sudo systemctl start mongod
+  - sudo systemctl enable mongod
     
- # Install git and deploy app
-    - git clone -b monolith https://github.com/express42/reddit.git
-    - cd reddit && bundle install
-    - puma -d
+  - git clone -b monolith https://github.com/express42/reddit.git
+  - cd reddit && bundle install
+  - puma -d
