@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 # Install ruby
 sudo apt update
-sudo apt install -y ruby-full ruby-bundler build-essential
+sudo apt install -y ruby-full ruby-bundler build-essential apt-transport-https
