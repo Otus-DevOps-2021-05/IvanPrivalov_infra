@@ -69,4 +69,3 @@ yc compute instance create \
 ssh yc-user@217.28.230.170
 
 ```
-
