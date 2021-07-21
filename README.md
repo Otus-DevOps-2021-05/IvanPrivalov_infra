@@ -24,14 +24,14 @@ ____
 
 ```shell
 
-packer validate -var-file=variables.json ubuntu16.json
+packer validate ./ubuntu16.json
 
 ```
 Команда для билда образа с указанием var-файла (запускаем из каталога ./packer):
 
 ```shell
 
-packer build -var-file=variables.json ubuntu16.json
+packer build ./ubuntu16.json
 
 ```
 
