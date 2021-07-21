@@ -32,8 +32,9 @@ packer validate -var-file=variables.json ubuntu16.json
 packer build -var-file=variables.json ubuntu16.json
 
 ```
-<details>
-  <summary>Созданный образ:</summary>
+
+<details><summary>Созданный образ:</summary>
+<p>
 ```
 otus@otus-VirtualBox:~/Desktop/IvanPrivalov_infra/conﬁg- scripts$ yc compute image list
 +----------------------+------------------------+-------------+----------------------+--------+
@@ -42,6 +43,8 @@ otus@otus-VirtualBox:~/Desktop/IvanPrivalov_infra/conﬁg- scripts$ yc compute i
 | fd8rjogu4lej2vbdfbpu | reddit-base-1626792584 | reddit-base | f2el9g14ih63bjul3ed3 | READY  |
 +----------------------+------------------------+-------------+----------------------+--------+
 ```
+<p>
+<details>
 
 После сборки образа создаем ВМ, выбрав его (в качестве пользовательсвого образа) в Yandex Cloud. Затем подключаемся к ВМ и деплоим приложение командами:
 ```shell
