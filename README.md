@@ -21,32 +21,33 @@ ____
 ## Как запустить проект
 ____
 Команда для валидации шаблона с указанием var-файла (запускаем из каталога ./packer):
+
 ```shell
 
 packer validate -var-file=variables.json ubuntu16.json
 
 ```
 Команда для билда образа с указанием var-файла (запускаем из каталога ./packer):
+
 ```shell
 
 packer build -var-file=variables.json ubuntu16.json
 
 ```
 
-<details><summary>Созданный образ:</summary>
-<p>
-```
+```shell
+
 otus@otus-VirtualBox:~/Desktop/IvanPrivalov_infra/conﬁg- scripts$ yc compute image list
 +----------------------+------------------------+-------------+----------------------+--------+
 |          ID          |          NAME          |   FAMILY    |     PRODUCT IDS      | STATUS |
 +----------------------+------------------------+-------------+----------------------+--------+
 | fd8rjogu4lej2vbdfbpu | reddit-base-1626792584 | reddit-base | f2el9g14ih63bjul3ed3 | READY  |
 +----------------------+------------------------+-------------+----------------------+--------+
+
 ```
-<p>
-<details>
 
 После сборки образа создаем ВМ, выбрав его (в качестве пользовательсвого образа) в Yandex Cloud. Затем подключаемся к ВМ и деплоим приложение командами:
+
 ```shell
 
 cd /home 
