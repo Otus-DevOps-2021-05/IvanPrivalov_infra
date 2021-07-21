@@ -1,7 +1,7 @@
 {
-    "service_account_key_file": "/home/otus/Desktop/key.json",
-    "folder_id": "b1gfroh2tett7b3hdn78",
+    "service_account_key_file": "service_account_key_file",
+    "folder_id": "folder_id",
     "zone": "ru-central1-a",
-    "subnet_id": "e9bnkiq5gta598jh0epj",
+    "subnet_id": "subnet_id",
     "source_image_family": "ubuntu-1604-lts"
 }
