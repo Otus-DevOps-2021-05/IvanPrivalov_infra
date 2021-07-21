@@ -1,0 +1,7 @@
+{
+    "service_account_key_file": "service_account_key_file",
+    "folder_id": "folder_id",
+    "zone": "zone",
+    "subnet_id": "subnet_id",
+    "source_image_family": "source_image_family"
+}
