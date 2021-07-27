@@ -1,4 +1,4 @@
-service_account_key_file = "key.json.example"
+service_account_key_file = "/key.json"
 cloud_id = "cloud_id"
 folder_id = "folder_id"
 zone = "ru-central1-a"
