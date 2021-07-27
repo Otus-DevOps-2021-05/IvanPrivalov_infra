@@ -53,11 +53,11 @@ Apply complete! Resources: 4 added, 0 changed, 0 destroyed.
 Outputs:
 
 external_ip_address_app = [
-  "178.154.222.160",
+  "178.154.223.158",
   "178.154.220.221",
 ]
 lb_ip_address = tolist([
-  "84.201.133.178",
+  "84.252.129.123",
 ])
 
 ```
