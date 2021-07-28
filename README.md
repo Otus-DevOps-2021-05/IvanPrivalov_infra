@@ -1,3 +1,120 @@
+# Домашнее задание №6
+____
+
+## В ДЗ сделано:
+____
+
+    1. Настроены конфигурационные файлы Terraform и отработано создание VM.
+    2. Работа с Provisioners - деплой тестового приложения.
+    3. Вынос переменных в Inputs vars
+
+____
+
+## Самостоятельное задание:
+
+    1. Определим переменную для приватного ключа использующегося в определении подключения для провижинеров (connection).
+
+```shell
+
+variable private_key_path {
+  # Описание переменной
+  description = "Path to the private key used for ssh access"
+} 
+
+private_key_path = "~/.ssh/id_rsa"
+
+```
+
+    2. Определим input переменную для зоны в ресурсе "yandex_compute_instance" "app" и ее значение по умолчанию.
+
+```shell
+
+variable zone {
+  description = "Zone"
+  # Значение по умолчанию
+  default = "ru-central1-a"
+}
+
+```
+
+    3. Создание файла terraform.tfvars.example примера в переменными.
+
+## Дополнительное задание
+____
+
+    1. Настройка балансировщика в Yandex Cloud. Конфигурационный файл lb.tf. При обращении к адресу балансировщика должно открываться задеплоенное приложение.
+    2. Добавление второго инстанса в main.tf
+    3. Добавим вывод IP Адреса балансирощика в output переменную:
+
+```shell
+
+Apply complete! Resources: 4 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+external_ip_address_app = [
+  "178.154.223.158",
+  "178.154.220.221",
+]
+lb_ip_address = tolist([
+  "84.252.129.123",
+])
+
+```
+
+    4. Проблемы конфигурации деплоя приложения на два инстанса - т.к. у нас в развертываемом приложении используется база данных MongoDB на каждом инстансе, то получается должно быть настроено зеркалирование или репликация данных между БД, для корректной работы приложения с балансировщиком. А также присутсвует избыточная конфигурация в коде.
+
+    5. Описание создания идентичных инстантов через парметр count, в main.tf добавим:
+
+```shell
+
+resource "yandex_compute_instance" "app" {
+  name = "reddit-app-${count.index}"
+  count = var.count_of_instances
+  allow_stopping_for_update = true
+
+```
+
+    В variables.tf добавим:
+
+```shell
+
+variable count_of_instances {
+  description = "Count of instances"
+  default     = 2
+}
+
+```
+
+    В lb.tf добавим:
+
+```shell
+
+resource "yandex_lb_target_group" "app_lb_target_group" {
+  name      = "app-lb-group"
+  region_id = var.region_id
+
+    dynamic "target" {
+      for_each = yandex_compute_instance.app.*.network_interface.0.ip_address
+        content {
+          subnet_id = var.subnet_id
+          address   = target.value
+        }
+    }
+}
+
+```
+
+    В outputs.tf добавим:
+
+```shell
+
+output "external_ip_address_app" {
+  value = yandex_compute_instance.app[*].network_interface.0.nat_ip_address
+}
+
+```
+
 # Домашнее задание №5
 ____
 
