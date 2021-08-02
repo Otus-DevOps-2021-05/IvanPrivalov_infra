@@ -1,3 +1,93 @@
+# Домашнее задание №7
+____
+
+## В ДЗ сделано:
+____
+
+    1. Удалены результаты выполнения предыдущего ДЗ со звездочкой
+    2. База данных и приложения вынесены на отдельные инстансы
+    3. Конфигурация разделена по файлам
+    4. Добавлены отдельные модули для DB и app
+    5. Созданы окружения для stage и prod
+
+## В ДЗ выполняется:
+____
+
+1. Cоздание сетевых ресурсов - yandex_vpc_network, yandex_vpc_subnet и инстанса - yandex_compute_instance, определенных в файле main.tf. Для того, чтобы сетевые ресурсы с IP-адресами создались до инстанса, используется неявная зависимость.
+
+2. В каталоге packer созданы 2 новых шаблона:
+db.json для сборки образа reddit-db-base (содержит mongodb).
+
+```shell
+
+packer validate -var-file=./variables.json ./db.json
+packer build -var-file=./variables.json ./db.json
+
+```
+
+app.json для сборки образа reddit-app-base (содержит ruby).
+
+```shell
+
+packer validate -var-file=./variables.json ./app.json
+packer build -var-file=./variables.json ./app.json
+
+```
+
+app.tf - создается инстанс из образа reddit-app-base
+db.tf - создается инстанс из образа reddit-db-base
+vpc.tf - создается сетевой ресурс.
+В outputs.tf добавлены nat адреса инстансов
+
+3. После запуска инфраструктуры в следующем задании db.tf, app.tf, vpc.tf были удалены.
+
+    - созданы модули в каталоге modules (конфиги лежат в каталогах app, db, vpc)
+
+    - Файл main.tf, в котором вызываются модули, а также переменные лежат в каталогах для разных окружений - stage и prod
+
+Для загрузки модулей необходимо перейти в stage и prod и выполнить комманду:
+
+```shell
+
+# инциализация terraform в новом каталоге
+terraform init
+# загрузка модулей (если были изменения)
+terraform get
+
+```
+
+Модули будут загружены в директорию .terraform, в которой уже содержится провайдер Yandex Cloud.
+
+```shell
+
+otus@otus-VirtualBox:~/Desktop/IvanPrivalov_infra/terraform$ tree .terraform
+.terraform
+├── modules
+│   └── modules.json
+└── providers
+    └── registry.terraform.io
+        └── yandex-cloud
+            └── yandex
+                └── 0.61.0
+                    └── linux_amd64
+                        ├── CHANGELOG.md
+                        ├── LICENSE
+                        ├── README.md
+                        └── terraform-provider-yandex_v0.61.0
+
+
+```
+
+4. Конфигурационный файлы отредактированы коммандой
+
+```shell
+
+terraform fmt
+
+```
+
+5. Проверим сборку VM для stage и prod - terraform apply, и удаление terraform destroy.
+____
 # Домашнее задание №6
 ____
 
