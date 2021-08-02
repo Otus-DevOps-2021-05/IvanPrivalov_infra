@@ -2,7 +2,7 @@
 	"builders": [
         {
             "type": "yandex",
-            "service_account_key_file": "/home/otus/Desktop/IvanPrivalov_infra/packer/key.json",
+            "service_account_key_file": "{{user `service_account_key_file`}}",
             "folder_id": "b1gfroh2tett7b3hdn78",
             "source_image_family": "ubuntu-1604-lts",
             "image_name": "reddit-db-{{timestamp}}",
