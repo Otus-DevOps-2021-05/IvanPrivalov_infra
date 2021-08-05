@@ -1,3 +1,180 @@
+# Домашнее задание №8
+____
+
+## В ДЗ сделано:
+____
+
+    1. Установил ansible на локальной машине.
+    2. Запустил инфраструктуру terraform из окружения stage, описанную в прошлом ДЗ.
+    3. Создал конфигурационный файл ansible.cfg с необходимыми параметрами:
+
+```shell
+
+[defaults]
+inventory = ./inventory, inventory.sh
+remote_user = ubuntu
+private_key_file = ~/.ssh/id_rsa
+host_key_checking = False
+retry_files_enabled = False
+
+```
+    4. Создал файлы статического инвентори, inventory и inventory.yml
+
+inventory:
+
+```shell
+
+[app]
+appserver ansible_host=178.154.241.146
+
+[db]
+dbserver ansible_host=178.154.222.132
+
+```
+
+inventory.yml
+
+```shell
+
+app:
+  hosts:
+    appserver:
+      ansible_host: 178.154.241.146
+db:
+  hosts:
+    dbserver:
+      ansible_host: 178.154.222.132
+
+```
+
+    5. Создал и выполнил playbook:
+
+clone.yml
+
+```shell
+
+---
+- name: Clone
+  hosts: app
+  tasks:
+    - name: Clone repo
+      git:
+        repo: https://github.com/express42/reddit.git
+        dest: /home/ubuntu/reddit
+
+```
+
+После выполнения playbook проверяем результат:
+
+```shell
+
+otus@otus-VirtualBox:~/Desktop/IvanPrivalov_infra/ansible$ ansible-playbook clone.yml
+
+PLAY [Clone] *****************************************************************************************************************************************
+
+TASK [Gathering Facts] *******************************************************************************************************************************
+[DEPRECATION WARNING]: Distribution Ubuntu 16.04 on host appserver should use /usr/bin/python3, but is using /usr/bin/python for backward 
+compatibility with prior Ansible releases. A future Ansible release will default to using the discovered platform python for this host. See 
+https://docs.ansible.com/ansible/2.9/reference_appendices/interpreter_discovery.html for more information. This feature will be removed in version 
+2.12. Deprecation warnings can be disabled by setting deprecation_warnings=False in ansible.cfg.
+ok: [appserver]
+
+TASK [Clone repo] ************************************************************************************************************************************
+ok: [appserver]
+
+PLAY RECAP *******************************************************************************************************************************************
+appserver                  : ok=2    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+
+```
+
+Изменений нет changed=0, т.к ansible поддерживает идемпотентность. Поскольку ожидаемый результат уже был достигнут на удаленном хосте, сценарий повторно не выполнился.
+
+Удалим каталог коммандой ansible app -m command -a 'rm -rf ~/reddit' и запустим заного playbook.
+
+```shell
+
+otus@otus-VirtualBox:~/Desktop/IvanPrivalov_infra/ansible$ ansible-playbook clone.yml
+
+PLAY [Clone] *****************************************************************************************************************************************
+
+TASK [Gathering Facts] *******************************************************************************************************************************
+[DEPRECATION WARNING]: Distribution Ubuntu 16.04 on host appserver should use /usr/bin/python3, but is using /usr/bin/python for backward 
+compatibility with prior Ansible releases. A future Ansible release will default to using the discovered platform python for this host. See 
+https://docs.ansible.com/ansible/2.9/reference_appendices/interpreter_discovery.html for more information. This feature will be removed in version 
+2.12. Deprecation warnings can be disabled by setting deprecation_warnings=False in ansible.cfg.
+ok: [appserver]
+
+TASK [Clone repo] ************************************************************************************************************************************
+changed: [appserver]
+
+PLAY RECAP *******************************************************************************************************************************************
+appserver                  : ok=2    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+
+```
+
+Теперь изменения будут отображены при выводе: changed=1
+
+## Задание со *
+
+Приложен bash-скрипт inventory.sh - во время выполнения формирует динамически список хостов для Ansible (динамический инвентори). IP-адреса определяются в соответствии с названиями инстансов в YaCloud, созданными ранее через terraform: reddit-app, reddit-db.
+
+Создан файл inventory.json
+
+Его создание выполнил командой:
+
+```shell
+
+./inventory.sh --list > inventory.json
+
+```
+
+Скрипт добавил в ansible.cfg, чтобы постоянно не ссылаться на него при запуске Ansible.
+
+```shell
+
+inventory = ./inventory, inventory.sh
+
+```
+
+После этого проверил доступность всех хостов, указанных в статическом и динамическом инвентори командой ansible all -m ping
+
+```shell
+
+otus@otus-VirtualBox:~/Desktop/IvanPrivalov_infra/ansible$ ansible all -m ping
+178.154.222.132 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+dbserver | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+appserver | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+178.154.241.146 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+
+```
+
+### Отличия схем JSON для динамического и статического инвентори
+
+Имеются отличия в синтаксисе файлов, например в JSON динамического инвентори хосты перечисляются в квадратных скобках. Кроме того, в динамическом инвентори используется секция _meta, которой нет в статическом инвентори.
 # Домашнее задание №7
 ____
 

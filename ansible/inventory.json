@@ -1,0 +1,21 @@
+{
+  "app": {
+    "hosts": [
+      "178.154.241.146"
+   ],
+   "vars": {
+      "example_var": "value"
+   }
+  },
+  "db": {
+    "hosts": [
+      "178.154.222.132" 
+   ],
+   "vars": {
+      "example_var": "value"
+   }
+  },
+  "_meta": {
+    "hostvars": {}
+    }
+}
