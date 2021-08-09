@@ -1,5 +1,5 @@
 {
-    "service_account_key_file": "key.json.example",
+    "service_account_key_file": "./key.json.example",
     "folder_id": "folder_id",
     "zone": "ru-central1-a",
     "subnet_id": "subnet_id",

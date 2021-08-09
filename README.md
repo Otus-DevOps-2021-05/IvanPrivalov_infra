@@ -1,3 +1,89 @@
+# Домашнее задание №9
+____
+
+## В ДЗ сделано:
+____
+
+В задании выполняется деплой тестового приложения reddit с помощью ansible-playbook на инстансах, созданных через terraform в YaCloud.
+Вместо пользователя appuser указан ubuntu (т.к. в прошлых ДЗ публичный ключ пробрасывался для ubuntu, он и присутствует в системе).
+На инстансе appserver репозиторий приложения клонируется в каталог пользователя ubuntu: /home/ubuntu.
+
+## Основное задание
+____
+
+1. Запустил инфраструктуру terraform из окружения stage, описанную в ДЗ №6:
+
+```shell
+
+cd terraform/stage
+terraform plan
+terraform apply
+
+```
+
+2. Создал playbook reddit_app_one_play.yml с одним сценарием.
+
+3. Создал шаблоны конфигов в каталоге templates: mongod.conf.j2, db_config.j2
+
+4. Создал в каталоге files файл юнита puma.service.
+Копируется на инстанс appserver в профиль пользователя ubuntu (куда деплоится приложение).
+
+5. На основе reddit_app_one_play.yml создал playbook reddit_app_multiple_plays.yml с разбивкой на несколько сценариев. Названия тэгов и секция become: true указаны здесь для каждого сценария.
+
+6. Далее вынес сценарии из reddit_app_multiple_plays.yml в отдельные плейбуки, из которых удалена секция tags: db.yml, app.yml, deploy.yml.
+
+7. Создал файл основного playbook site.yml, в котором описывается управление всей конфигурацией инфраструктуры site.yml.
+
+8. Изменил провижининг в Packer, создал плэйбуки ansible/packer_app.yml и ansible/packer_db.yml.
+
+9. Заменил секцию Provision в образе packer/app.json и packer/db.json на Ansible.
+
+10. Выполнил билд образов с использованием нового провижинера.
+
+```shell
+
+packer build -var-file=./variables.json ./app.json
+
+==> Builds finished. The artifacts of successful builds are:
+--> yandex: A disk image was created: reddit-app-1628239067 (id: fd8vn7c49v8t9t4fllbc) with family name reddit-base
+
+packer build -var-file=./variables.json ./db.json
+
+==> Builds finished. The artifacts of successful builds are:
+--> yandex: A disk image was created: reddit-db-1628239737 (id: fd8t5g8ukshdpv5qpkmi) with family name reddit-base
+
+```
+
+11. На основе созданных app и db образов запустите stage окружение.
+
+```shell
+
+terraform apply -auto-approve=false
+
+Apply complete! Resources: 2 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+external_ip_address_app = "178.154.231.2"
+external_ip_address_db = "178.154.240.229"
+
+```
+
+12. Запустил плэйбук site.yml и проверил работу приложения.
+
+```shell
+
+ansible-playbook site.yml --check
+ansible-playbook site.yml
+
+PLAY RECAP *******************************************************************************************************************************************
+appserver                  : ok=9    changed=7    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+dbserver                   : ok=3    changed=2    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+
+```
+
+13. Проверка деплоя приложения: http://178.154.231.2:9292/
+
 # Домашнее задание №8
 ____
 
