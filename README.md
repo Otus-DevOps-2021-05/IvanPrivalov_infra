@@ -1,3 +1,273 @@
+# Домашнее задание №10
+____
+
+## В ДЗ сделано:
+____
+
+1. Cоздал ansible-роли app, db для тестового приложения reddit.
+
+```shell
+
+cd ansible
+mkdir roles
+cd roles
+ansible-galaxy init app
+ansible-galaxy init db
+
+```
+
+2. Плейбуки app.yml, db.yml вместе с шаблонами и файлами из ДЗ №9 перенес в роли.
+
+3. Установил коммюнити роль nginx:
+
+```shell
+
+cd ansible/roles
+ansible-galaxy install -r environments/stage/requirements.yml
+
+```
+
+Теперь актуальные плейбуки имеют вид:
+
+ansible/playbooks/app.yml
+
+```shell
+
+- name: Configure App
+  hosts: app
+  become: true
+  roles:
+    - app
+    - jdauphant.nginx
+
+```
+
+```shell
+
+ansible/playbooks/db.yml
+
+- name: Configure MongoDB
+  hosts: db
+  become: true
+  roles: 
+    - db
+
+```    
+
+4. В каталоге environments создал папки окружений stage и prod.
+Указал в них инвентори и создал необходимые папки и файлы (в group-vars храним переменные).
+Структура каталога:
+
+```shell
+
+├── environments
+│   ├── prod
+│   │   ├── credentials.yml
+│   │   ├── group_vars
+│   │   │   ├── all
+│   │   │   ├── app
+│   │   │   └── db
+│   │   ├── inventory
+│   │   └── requirements.yml
+│   └── stage
+│       ├── credentials.yml
+│       ├── group_vars
+│       │   ├── all
+│       │   ├── app
+│       │   └── db
+│       ├── inventory
+│       └── requirements.yml
+
+``` 
+
+5. Создал новый плейбук ansible/playbooks/users.yml для создания пользователя admin на всех серверах.
+
+6. Зашифровал ключом ansible-vault файлы credentials.yml, в которых содержатся пароли пользователей:
+
+```shell
+
+# создать файл ключа с паролем для шифрования
+echo "somepass" > vault.key
+# шифруем ключом файлы
+ansible-vault encrypt environments/stage/credentials.yml
+ansible-vault encrypt environments/prod/credentials.yml
+# расшифровать
+ansible-vault decrypt environments/stage/credentials.yml
+ansible-vault decrypt environments/prod/credentials.yml
+
+``` 
+
+Путь к файлу ключа указал в ansible.cfg
+
+```shell
+
+[defaults]
+inventory = ./environments/stage/inventory
+remote_user = ubuntu
+private_key_file = ~/.ssh/id_rsa
+host_key_checking = False
+retry_files_enabled = False
+roles_path = ./roles
+vault_password_file = vault.key
+
+[diff]
+# Включим обязательный вывод diff при наличии изменений и вывод 5 строк контекста
+always = True
+context = 5
+
+```
+
+7. Главный плейбук для запуска теперь имеет вид:
+
+```shell
+
+---
+- import_playbook: db.yml
+- import_playbook: app.yml
+- import_playbook: deploy.yml
+- import_playbook: users.yml
+
+```
+
+8. Старые файлы перенесены в каталог ansible/old, плейбуки в ansible/playbooks
+
+9. Структура каталогов ansible в итоге выглядит следующим образом:
+
+```shell
+
+.
+├── ansible.cfg
+├── environments
+│   ├── prod
+│   │   ├── credentials.yml
+│   │   ├── group_vars
+│   │   │   ├── all
+│   │   │   ├── app
+│   │   │   └── db
+│   │   ├── inventory
+│   │   └── requirements.yml
+│   └── stage
+│       ├── credentials.yml
+│       ├── group_vars
+│       │   ├── all
+│       │   ├── app
+│       │   └── db
+│       ├── inventory
+│       └── requirements.yml
+├── old
+│   ├── files
+│   │   └── puma.service
+│   ├── inventory.json
+│   ├── inventory.sh
+│   ├── inventory.yml
+│   └── templates
+│       ├── db_config.j2
+│       └── mongod.conf.j2
+├── playbooks
+│   ├── app.yml
+│   ├── clone.yml
+│   ├── db.yml
+│   ├── deploy.yml
+│   ├── packer_app.yml
+│   ├── packer_db.yml
+│   ├── reddit_app_multiple_plays.yml
+│   ├── reddit_app_one_play.yml
+│   ├── site.yml
+│   └── users.yml
+├── requirements.txt
+├── roles
+│   ├── app
+│   │   ├── defaults
+│   │   │   └── main.yml
+│   │   ├── files
+│   │   │   └── puma.service
+│   │   ├── handlers
+│   │   │   └── main.yml
+│   │   ├── meta
+│   │   │   └── main.yml
+│   │   ├── README.md
+│   │   ├── tasks
+│   │   │   └── main.yml
+│   │   ├── templates
+│   │   │   └── db_config.j2
+│   │   ├── tests
+│   │   │   ├── inventory
+│   │   │   └── test.yml
+│   │   └── vars
+│   │       └── main.yml
+│   ├── db
+│   │   ├── defaults
+│   │   │   └── main.yml
+│   │   ├── files
+│   │   ├── handlers
+│   │   │   └── main.yml
+│   │   ├── meta
+│   │   │   └── main.yml
+│   │   ├── README.md
+│   │   ├── tasks
+│   │   │   └── main.yml
+│   │   ├── templates
+│   │   │   └── mongod.conf.j2
+│   │   ├── tests
+│   │   │   ├── inventory
+│   │   │   └── test.yml
+│   │   └── vars
+│   │       └── main.yml
+│   └── jdauphant.nginx
+│       ├── ansible.cfg
+│       ├── defaults
+│       │   └── main.yml
+│       ├── handlers
+│       │   └── main.yml
+│       ├── meta
+│       │   └── main.yml
+│       ├── README.md
+│       ├── tasks
+│       │   ├── amplify.yml
+│       │   ├── cloudflare_configuration.yml
+│       │   ├── configuration.yml
+│       │   ├── ensure-dirs.yml
+│       │   ├── installation.packages.yml
+│       │   ├── main.yml
+│       │   ├── nginx-official-repo.yml
+│       │   ├── remove-defaults.yml
+│       │   ├── remove-extras.yml
+│       │   ├── remove-unwanted.yml
+│       │   └── selinux.yml
+│       ├── templates
+│       │   ├── auth_basic.j2
+│       │   ├── config_cloudflare.conf.j2
+│       │   ├── config.conf.j2
+│       │   ├── config_stream.conf.j2
+│       │   ├── module.conf.j2
+│       │   ├── nginx.conf.j2
+│       │   ├── nginx.repo.j2
+│       │   └── site.conf.j2
+│       ├── test
+│       │   ├── custom_bar.conf.j2
+│       │   ├── example-vars.yml
+│       │   └── test.yml
+│       ├── Vagrantfile
+│       └── vars
+│           ├── Debian.yml
+│           ├── empty.yml
+│           ├── FreeBSD.yml
+│           ├── main.yml
+│           ├── RedHat.yml
+│           └── Solaris.yml
+└── vault.key
+
+```
+
+## Запуск проекта
+____
+
+После деплоя приложение должно быть доступно по адресам:
+
+http://178.154.246.251:9292/ (основной порт приложения)
+http://178.154.246.251/ (http-проксирование с nginx port 80 -> port 9292)
+На всех серверах должен быть создан пользователь admin с паролем из своего окружения.
+
 # Домашнее задание №9
 ____
 
