@@ -33,3 +33,14 @@ resource "yandex_compute_instance" "app" {
   ssh-keys = "ubuntu:${file(var.public_key_path)}"
   }
 }
+resource "yandex_lb_network_load_balancer" "foo" {
+  name = "my-network-load-balancer"
+
+  listener {
+    name = "my-listener"
+    port = 8080
+    external_address_spec {
+      ip_version = "ipv4"
+    }
+  }
+}
