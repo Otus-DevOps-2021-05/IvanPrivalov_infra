@@ -4,5 +4,12 @@
 *.tfvars
 .terraform/
 *.retry
-#jdauphant.nginx
+jdauphant.nginx
 vault.key
+# Vagrant & molecule
+.vagrant/
+*.log
+*.pyc
+.molecule
+.cache
+.pytest_cache
